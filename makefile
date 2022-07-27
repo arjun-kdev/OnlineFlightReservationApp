@@ -1,5 +1,5 @@
 CC=gcc
-SRC=main.c myutil.c user.c admin.c flight_db.c ticket_db.c
+SRC=main.c myutil.c user.c admin.c flight_db.c ticket_db.c -lpthread
 EXE=flight
 build:
 	$(CC) -g $(SRC) -o $(EXE)
