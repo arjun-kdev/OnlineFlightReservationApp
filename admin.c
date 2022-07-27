@@ -1,4 +1,5 @@
 //#pragma once
+#include <threads.h>
 #include "header.h"
 #include "flight_db.h"
 #include "ticket_db.h"
@@ -13,6 +14,22 @@ void view_flight_byServiceNumber();
 void view_seats_in_flight();
 void view_tickets_flight();
 void admin_view_ticket();
+
+int stats(void *arg)
+{
+int flight_count = 0, seats_available = 0, ticket_count = 0;;
+ticket_bdb_read_count(&ticket_count);
+flight_bdb_read_count_seat(&flight_count, &seats_available);
+printf("  Flights : %d\tSeats Available : %d\tTickets Sold : %d\n\n",flight_count, seats_available, ticket_count);
+
+}
+void process()
+{
+thrd_t t1;
+thrd_create(&t1,&stats,NULL);
+int c =thrd_join(t1,NULL);
+
+}
 
 void admin_app()
 {
@@ -40,38 +57,47 @@ void admin_app()
 		{
 			case 1:
 					system("clear");
+					process();
 					add_flight();
 					break;
 		    case 2: 
 		    		system("clear");
+					process();
 		    		update_flight_time();
 		    		break;
 		    case 3:
 		    		system("clear");
+					process();
 		    		delete_flight();
 		    		break;
 		    case 4: 
 		    		system("clear");
+					process();
 		    		view_all_flight_details();
 		            break;
 		    case 5:
 		    		system("clear");
+					process();
 		    		update_flight_status();
 		    		break;
 		    case 6:
 		    		system("clear");
+					process();
 		    		view_flight_byServiceNumber();
 		    		break;
 		    case 7:
 		    		system("clear");
+					process();
 		    		view_seats_in_flight();
 		    		break;
 		    case 8:
 		    		system("clear");
+					process();
 		    		view_tickets_flight();
 		    		break;
 		    case 9:
 		    		system("clear");
+					process();
 		    		admin_view_ticket();
 		    		break;
 		    case 0:

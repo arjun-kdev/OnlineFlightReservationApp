@@ -34,6 +34,26 @@ void flight_bdb_read_count(int* countAddr)
     fclose(in);
     (*countAddr) = I;
 }
+void flight_bdb_read_count_seat(int* countAddr, int *countSeat)
+{
+int I=0;
+flight FT;
+char fileName[] = "Flights.dat";
+FILE* in = fopen(fileName,"rb");
+if(in == NULL)
+{
+    printf("FILE ERROR.\n");
+    return;
+}
+while(fread(&FT,1,sizeof(flight),in))
+{
+    (*countSeat) = (*countSeat) + FT.seats_available;
+    I++;
+}
+fclose(in);
+(*countAddr) = I;
+
+}
 
 void flight_bdb_readAll(flight* ft)
 {
