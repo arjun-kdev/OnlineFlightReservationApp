@@ -8,8 +8,8 @@ void view_bookings();
 FILE* view;
 FILE *fp;
 FILE* enter;
-char admin_entry[20] = {'y'};
-char user_entry[20] = {'y'};
+extern char admin_entry;
+extern char user_entry;
 
 
 struct hotel

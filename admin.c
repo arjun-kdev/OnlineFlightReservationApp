@@ -4,6 +4,8 @@
 #include "flight_db.h"
 #include "ticket_db.h"
 #include "myutil.h"
+#include "accomodation.h"
+#include "list.h"
 
 void add_flight();
 void update_flight_time();
@@ -15,18 +17,33 @@ void view_seats_in_flight();
 void view_tickets_flight();
 void admin_view_ticket();
 
+int bookCount, flight_count = 0, seats_available = 0, ticket_count = 0;
+int acco(void *arg)
+{
+	bookCount = 0;
+	FILE *enter = fopen("bookings.txt", "r");
+	while (fscanf(enter, "%s %s ", h.name, h.room) != -1)
+	{
+		// printf("%s %s  \n",h.name,h.room);
+		bookCount++;
+	}
+}
+
 int stats(void *arg)
 {
-	int flight_count = 0, seats_available = 0, ticket_count = 0;
+	flight_count = 0, seats_available = 0, ticket_count = 0;
 	ticket_bdb_read_count(&ticket_count);
 	flight_bdb_read_count_seat(&flight_count, &seats_available);
-	printf("  Flights : %d\tSeats Available : %d\tTickets Sold : %d\n\n", flight_count, seats_available, ticket_count);
+	// printf("  Flights : %d\tSeats Available : %d\tTickets Sold : %d\n\n", flight_count, seats_available, ticket_count);
 }
 void process()
 {
-	thrd_t t1;
+	thrd_t t1, t2;
 	thrd_create(&t1, &stats, NULL);
-	int c = thrd_join(t1, NULL);
+	thrd_create(&t2, &acco, NULL);
+	thrd_join(t1, NULL);
+	thrd_join(t2, NULL);
+	printf("  Flights : %d\tSeats Available : %d\tTickets Sold : %d\n\tBooking status pending :%d\n\n", flight_count, seats_available, ticket_count, bookCount);
 }
 
 void admin_app()
@@ -170,17 +187,43 @@ void view_all_flight_details()
 		flight *ft = (flight *)malloc(count * sizeof(flight));
 
 		flight_bdb_readAll(ft);
+		LF *head = NULL;
+		for (int i = 0; i < count; i++)
+		{
+			LF *node = (LF *)malloc(1 * sizeof(LF));
+			(*node).ft = ft[i];
+			node->next = head;
+			head = node;
+		}
 
 		printf("S.No   Flight Name\tFlight ID\t S.Number\tFROM   \t      TO\t    DOJ\t      No.of.Seats    D.Time\tA.Time\t Ticket-Price\t  Status\n\n\n");
+		LF *temp = head;
+		LF *temp1;
+		int i = 1;
+		while (temp)
+		{
+			printf(" %d      %7s         %7s          ", i++, temp->ft.flightName, temp->ft.flightID);
+			printf("%6s      %s    %s    ", temp->ft.serviceNumber, temp->ft.source, temp->ft.destination);
+			printf("%s         %d        %s    %s    ", temp->ft.doj, temp->ft.seats_available, temp->ft.departure_time, temp->ft.arrival_time);
+			printf(" %.2lf       %s\n", temp->ft.ticket_price, temp->ft.status);
+			temp1 = temp;
+			temp = temp->next;
+			free(temp1);
+			temp1 = NULL;
+		}
+		free(temp);
+		printf("\n\n");
 
-		for (int i = 0; i < count; i++)
+		free(ft);
+		ft = NULL;
+
+		/*for (int i = 0; i < count; i++)
 		{
 			printf(" %d      %7s         %7s          ", i + 1, ft[i].flightName, ft[i].flightID);
 			printf("%6s      %s    %s    ", ft[i].serviceNumber, ft[i].source, ft[i].destination);
 			printf("%s         %d        %s    %s    ", ft[i].doj, ft[i].seats_available, ft[i].departure_time, ft[i].arrival_time);
 			printf(" %.2lf       %s\n", ft[i].ticket_price, ft[i].status);
-		}
-		printf("\n\n");
+		}*/
 	}
 }
 
@@ -302,17 +345,14 @@ void update_flight_status()
 	ticket_bdb_read_ticketcount_serviceNumber_date(&count1, sNumber, doj);
 	ticket *t = (ticket *)malloc(count1 * sizeof(ticket));
 	ticket_bdb_readAll_serviceID_date(t, sNumber, doj);
-	printf("\nCount1 = %d\n",count1);
+	printf("\nCount1 = %d\n", count1);
 	for (int i = 0; i < count1; i++)
 	{
 
 		strcpy(t[i].status, "Cancel");
 		ticket_bdb_update_status(t[i]);
 	}
-	
-
 }
-
 
 void delete_flight()
 {
@@ -400,7 +440,45 @@ void view_tickets_flight()
 
 		ticket_bdb_readAll_serviceID_date(t, sNumber, doj);
 
-		for (int i = 0; i < count; i++)
+
+		LT *head = NULL;
+		for(int i = 0; i < count ; i++)
+		{
+			LT *node = (LT*)malloc(1*sizeof(LT));
+			(*node).t = t[i];
+			
+			node->next = head;
+			head = node;
+	    }
+	    
+	    LT *temp = head;
+		LT *temp1;
+		int i = 1;	
+		
+		while(temp)
+		{
+			printf("\nTicketID : %s\t FlightID : %s\t ServiceID : %s\n", temp->t.ticketID, temp->t.flightID, temp->t.serviceNumber);
+			printf("Date of Journey : %s\n", temp->t.doj);
+			printf("%s - %s\n\n", temp->t.source, temp->t.destination);
+			
+		    for(int j = 0; j < temp->t.passengerCount; j++)
+		    {
+		    	printf("%d  %s  %s  %c  %d\n", j+1, temp->t.passengerID[j], temp->t.passengerName[j], temp->t.gender[j], temp->t.seatNO[j]);
+		    } 
+			
+    	    printf("status : %s\n", temp->t.status);	
+		
+		
+			temp1 = temp;
+			temp = temp->next;
+			free(temp1);
+			temp1 = NULL;	
+	   }	
+	   
+	   free(t);
+	   t = NULL;
+
+		/*for (int i = 0; i < count; i++)
 		{
 			printf("\nTicketID : %s\t FlightID : %s\t ServiceID : %s\n", t[i].ticketID, t[i].flightID, t[i].serviceNumber);
 			printf("Date of Journey : %s\n", t[i].doj);
@@ -412,7 +490,7 @@ void view_tickets_flight()
 			}
 
 			printf("status : %s\n", t[i].status);
-		}
+		}*/
 	}
 	else
 	{

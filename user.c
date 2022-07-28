@@ -5,6 +5,9 @@
 #include "user.h"
 #include "accomodation.h"
 
+char admin_entry='y';
+char user_entry='y';
+
 void book_tickets();
 void view_ticket();
 void cancel_tickets();
@@ -315,14 +318,14 @@ void Accomodation(){
                     }
                     if(i==4){
                         fclose(passw);
-                        return 0;
+                        return;
                     }
 
                
                 }
 
                  //re-entry if
-                while(admin_entry[0] =='y'){
+                while(admin_entry =='y'){
 
                 printf("\n>>>>>>>>>>>>\tTo VIEW booking requests --> 1 \t\t\t<<<<<<<<<<<<");
                  printf("\n>>>>>>>>>>>>\tTo VIEW booked guests details --> 2 \t\t\t<<<<<<<<<<<<");
@@ -361,26 +364,27 @@ void Accomodation(){
                 }
                 //enter again?
                 printf("Would you like to continue? (y/n)\n");
-                scanf("%s",admin_entry);
+                scanf("%s",&admin_entry);
 
                 }
-                if(strcmp(admin_entry,"n") == 0){
+                if((admin_entry == 'n')){
+                     admin_entry = 'y'; 
                     printf("Exiting...\n");
                     printf("\e[1;1H\e[2J");
                     printf("\n >Exited<\n\n");
                     //system("clear");
-                    return 0;
+                    return;
                 }
                 else{
                     printf("Wrong entry!\nExiting...\n");
-                    return 0;
+                    return;
                 }
                 break;
             }
             
                      
             case 2:{
-                while(user_entry[0] =='y'){
+                while(user_entry =='y'){
                 printf("\nHello user and welcome to Hotel!");
                 printf("\n\tTo view available rooms --> 1 \t\t\t");
                 // printf("\n\tEnter number of room to be book --> 2 \t\t\t");
@@ -426,19 +430,20 @@ void Accomodation(){
                 }
                     
                 printf("\nWould you like to continue? (y/n)\n");
-                scanf("%s",user_entry);
+                scanf("%s",&user_entry);
 
                 }
-                if(strcmp(user_entry,"n") == 0){
+                if((user_entry == 'n')){
                     printf("Exiting...\n");
+                    user_entry ='y'; 
                     printf("\e[1;1H\e[2J");
                     printf("\n >Exited<\n\n");
                     //system("clear");
-                    return 0;
+                    return;
                 }
                 else{
                     printf("Wrong entry!\nExiting...\n");
-                    return 0;
+                    return;
                 }
                 break;
             }

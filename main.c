@@ -68,7 +68,8 @@ int main()
         				scanf(" %c",&retry);
         				count++;			
         				break;
-        }				
+        }	
+					
 	}while( (retry == 'Y' || retry == 'y') && (count < 3));
 
     printf("\n\n**************** Thank You *******************\n\n");
